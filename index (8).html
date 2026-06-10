@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Jabones Artesanales Online</title>
+
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        (function(){
+            emailjs.init("PMUUBaiO0oOsAMirp-"); 
+        })();
+    </script>
+
+    <style>
+        body { font-family: Arial; margin: 0; background: #f4f4f4; }
+        header {
+            background: #1e88e5; color: white; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .contacto { font-size: 14px; opacity: 0.9; }
+        .product-box, .form-box {
+            background: white; width: 380px; margin: 20px auto; padding: 20px;
+            border-radius: 10px; box-shadow: 0 0 10px #ccc; text-align: center;
+        }
+        img { width: 100%; border-radius: 10px; box-shadow: 0 0 10px #aaa; }
+        button {
+            background: #1e88e5; color: white; border: none; padding: 10px;
+            cursor: pointer; border-radius: 5px; margin-top: 10px; width: 100%;
+        }
+        .cart {
+            position: fixed; right: 20px; top: 80px; background: white;
+            width: 320px; padding: 20px; border-radius: 10px;
+            box-shadow: 0 0 15px #999;
+        }
+        input {
+            width: 100%; padding: 8px; margin-top: 8px;
+            border: 1px solid #ccc; border-radius: 5px;
+        }
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            margin-left: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>Jabones Artesanales Online</h1>
+        <div class="contacto">📞 Contacto: <strong>651510243</strong></div>
+    </div>
+    <button id="cart-btn">🛒 Carrito (<span id="cart-count">0</span>)</button>
+</header>
+
+<div class="product-box">
+    <img src="imagen1.png" alt="Jabon Artesanal de manteca de cerdo">
+    <h2>Jabon Artesanal de manteca de cerdo</h2>
+    <p><strong>Precio:</strong> 9.50 €</p>
+    <p><strong>Stock disponible:</strong> <span id="stock"></span> unidades</p>
+
+    <button onclick="addToCart()">Añadir al carrito</button>
+</div>
+
+<div class="form-box">
+    <h2>Datos de envío</h2>
+
+    <input id="nombre" placeholder="Nombre (obligatorio)">
+    <input id="apellidos" placeholder="Apellidos (obligatorio)">
+    <input id="direccion" placeholder="Dirección completa (obligatorio)">
+    <input id="ciudad" placeholder="Ciudad (obligatorio)">
+    <input id="cp" placeholder="Código Postal (obligatorio)">
+    <input id="telefono" placeholder="Teléfono (obligatorio)">
+    <input id="email" placeholder="Email (obligatorio)">
+</div>
+
+<div id="cart" class="cart">
+    <h2>Carrito</h2>
+    <ul id="cart-items"></ul>
+    <p>Total: <span id="cart-total">0.00</span> €</p>
+
+    <button id="pagar-btn">Pagar</button>
+    <button class="close" onclick="toggleCart()">Cerrar</button>
+</div>
+
+<script>
+    window.onload = () => {
+        document.getElementById("cart").style.display = "none";
+    };
+
+    let stock = localStorage.getItem("stock") ? parseInt(localStorage.getItem("stock")) : 20;
+    let cart = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
+
+    document.getElementById("stock").innerText = stock;
+
+    function saveData() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        localStorage.setItem("stock", stock);
+    }
+
+    function addToCart() {
+        if (cart.length >= 6) {
+            alert("Máximo 6 unidades por pedido.");
+            return;
+        }
+
+        if (stock <= 0) {
+            alert("No queda stock disponible.");
+            return;
+        }
+
+        cart.push({ name: "Jabon Artesanal (por unidad)", price: 9.50 });
+        stock--;
+        saveData();
+        updateCart();
+    }
+
+    function validarDatos() {
+        const campos = ["nombre", "apellidos", "direccion", "ciudad", "cp", "telefono", "email"];
+        for (let campo of campos) {
+            if (document.getElementById(campo).value.trim() === "") {
+                alert("El campo '" + campo + "' es obligatorio.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function updateCart() {
+        document.getElementById("cart-count").innerText = cart.length;
+
+        let list = document.getElementById("cart-items");
+        list.innerHTML = "";
+
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            let li = document.createElement("li");
+            li.textContent = `${item.name} - ${item.price} €`;
+
+            let btn = document.createElement("button");
+            btn.textContent = "❌";
+            btn.className = "delete-btn";
+            btn.onclick = () => eliminarProducto(index);
+
+            li.appendChild(btn);
+            list.appendChild(li);
+
+            total += item.price;
+        });
+
+        document.getElementById("cart-total").innerText = total.toFixed(2);
+        document.getElementById("stock").innerText = stock;
+    }
+
+    function eliminarProducto(index) {
+        cart.splice(index, 1);
+        stock++;
+        saveData();
+        updateCart();
+    }
+
+    function toggleCart() {
+        const cartBox = document.getElementById("cart");
+        cartBox.style.display = cartBox.style.display === "none" ? "block" : "none";
+    }
+
+    document.getElementById("cart-btn").onclick = toggleCart;
+
+    updateCart();
+
+    document.getElementById("pagar-btn").onclick = () => {
+
+        if (!validarDatos()) return;
+
+        let cantidad = cart.length;
+
+        if (cantidad === 0) {
+            alert("El carrito está vacío.");
+            return;
+        }
+
+        if (cantidad > 6) {
+            alert("Máximo 6 unidades.");
+            return;
+        }
+
+        const nombre = document.getElementById("nombre").value;
+        const apellidos = document.getElementById("apellidos").value;
+        const direccion = document.getElementById("direccion").value;
+        const ciudad = document.getElementById("ciudad").value;
+        const cp = document.getElementById("cp").value;
+        const telefono = document.getElementById("telefono").value;
+        const email = document.getElementById("email").value;
+
+        let mensaje =
+            "📦 NUEVO PEDIDO\n\n" +
+            "Cliente: " + nombre + " " + apellidos + "\n" +
+            "Email: " + email + "\n" +
+            "Dirección: " + direccion + ", " + cp + " " + ciudad + "\n" +
+            "Teléfono: " + telefono + "\n\n" +
+            "Productos:\n";
+
+        cart.forEach(p => {
+            mensaje += "- " + p.name + " (" + p.price + "€)\n";
+        });
+
+        mensaje += "\nTotal: " + (cantidad * 9.50).toFixed(2) + "€\n";
+
+        emailjs.send("service_dg1wv3t", "template_k5ouvvc", {
+            mensaje: mensaje
+        });
+
+        const enlaces = {
+            1: "https://www.paypal.me/jabonesonline/9.50",
+            2: "https://www.paypal.me/jabonesonline/19.00",
+            3: "https://www.paypal.me/jabonesonline/28.50",
+            4: "https://www.paypal.me/jabonesonline/38.00",
+            5: "https://www.paypal.me/jabonesonline/47.50",
+            6: "https://www.paypal.me/jabonesonline/57.00"
+        };
+
+        setTimeout(() => {
+            window.location.href = enlaces[cantidad];
+        }, 500);
+    };
+</script>
+
+</body>
+</html>

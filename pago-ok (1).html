@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pago completado</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .box {
+            background: white;
+            width: 380px;
+            margin: 60px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px #bbb;
+        }
+        h1 {
+            color: #1e88e5;
+        }
+        .btn {
+            background: #1e88e5;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h1>✅ Pago completado</h1>
+    <p>Gracias por tu compra.</p>
+    <p>Tu pedido ha sido procesado correctamente.</p>
+
+    <p>En breve recibirás un correo con los detalles del envío.</p>
+
+    <button class="btn" onclick="volver()">Volver a la tienda</button>
+</div>
+
+<script>
+    function volver() {
+        window.location.href = "index.html";
+    }
+</script>
+
+</body>
+</html>
